@@ -17,6 +17,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check environment
+        run: |
+          echo "=== Xcode Version ==="
+          xcodebuild -version
+          echo ""
+          echo "=== Clang Version ==="
+          clang --version
+          echo ""
+          echo "=== libFuzzer Check ==="
+          if clang -fsanitize=fuzzer -x c -c /dev/null -o /dev/null 2>/dev/null; then
+            echo "libFuzzer runtime: AVAILABLE"
+          else
+            echo "libFuzzer runtime: NOT AVAILABLE (will use standalone harness)"
+          fi
+          echo ""
+          echo "=== ASAN Check ==="
+          if clang -fsanitize=address -x c -c /dev/null -o /dev/null 2>/dev/null; then
+            echo "AddressSanitizer: AVAILABLE"
+          else
+            echo "AddressSanitizer: NOT AVAILABLE"
+          fi
+
       - name: Build fuzzer
         run: |
           cd ${{ matrix.fuzzer }}
