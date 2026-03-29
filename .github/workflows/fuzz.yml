@@ -39,8 +39,6 @@ jobs:
             echo "AddressSanitizer: NOT AVAILABLE"
           fi
 
-      - name: Install dependencies
-        run: brew install coreutils 2>/dev/null || true
 
       - name: Build fuzzer
         run: |
@@ -56,7 +54,7 @@ jobs:
           if [ -z "$CORPUS" ]; then CORPUS=corpus; fi
           mkdir -p crashes
           echo "Running: $FUZZER $CORPUS/"
-          gtimeout 18000 $FUZZER $CORPUS/ \
+          timeout 18000 $FUZZER $CORPUS/ \
             -max_len=4096 \
             -timeout=5 \
             -rss_limit_mb=2048 \
