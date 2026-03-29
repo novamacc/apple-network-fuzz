@@ -39,6 +39,9 @@ jobs:
             echo "AddressSanitizer: NOT AVAILABLE"
           fi
 
+      - name: Install dependencies
+        run: brew install coreutils 2>/dev/null || true
+
       - name: Build fuzzer
         run: |
           cd ${{ matrix.fuzzer }}
@@ -48,12 +51,12 @@ jobs:
       - name: Run fuzzer (5 hours)
         run: |
           cd ${{ matrix.fuzzer }}
-          FUZZER=$(find . -name "fuzz_*" -type f -perm +111 | head -1)
+          FUZZER=$(find . -name "fuzz_*" -o -name "test_*" -type f -perm +111 | head -1)
           CORPUS=$(find . -name "corpus*" -type d | head -1)
           if [ -z "$CORPUS" ]; then CORPUS=corpus; fi
           mkdir -p crashes
           echo "Running: $FUZZER $CORPUS/"
-          timeout 18000 $FUZZER $CORPUS/ \
+          gtimeout 18000 $FUZZER $CORPUS/ \
             -max_len=4096 \
             -timeout=5 \
             -rss_limit_mb=2048 \
